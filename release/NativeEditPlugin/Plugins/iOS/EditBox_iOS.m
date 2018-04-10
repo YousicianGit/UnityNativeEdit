@@ -24,6 +24,7 @@ bool approxEqualFloat(float x, float y)
     if (self = [super initWithFrame:frame])
     {
         UITapGestureRecognizer *tap=[[UITapGestureRecognizer alloc] initWithTarget:self    action:@selector(tapAction:)];
+        tap.cancelsTouchesInView = NO;
         [self addGestureRecognizer:tap];
         self.userInteractionEnabled = YES;
     }
