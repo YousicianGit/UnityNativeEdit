@@ -30,6 +30,8 @@
  * 1. Screen auto rotation is not supported.
  */
 
+// Disabling on Android because of Unity 5.6 incompatibilities, and issues with YT browser integration
+#define NATIVE_EDIT_ANDROID_DISABLED
 
 using UnityEngine;
 using UnityEngine.Events;
@@ -190,7 +192,7 @@ public class NativeEditBox : PluginMsgReceiver
 		yield return null;
 
 		this.PrepareNativeEdit();
-		#if (UNITY_IPHONE || UNITY_ANDROID) && !UNITY_EDITOR
+		#if (UNITY_IPHONE || (UNITY_ANDROID && !NATIVE_EDIT_ANDROID_DISABLED)) && !UNITY_EDITOR
 		this.CreateNativeEdit();
 		this.SetTextNative(this.objUnityText.text);
 
@@ -202,7 +204,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void Update()
 	{
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR && !NATIVE_EDIT_ANDROID_DISABLED
 		this.UpdateForceKeyeventForAndroid();
 #endif
 
@@ -392,7 +394,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public void SetFocus(bool bFocus)
 	{
-#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || (UNITY_ANDROID && !NATIVE_EDIT_ANDROID_DISABLED)) && !UNITY_EDITOR  
 		if (!bNativeEditCreated)
 		{
 			focusOnCreate = bFocus;
@@ -436,7 +438,7 @@ public class NativeEditBox : PluginMsgReceiver
 		this.Visible = bVisible;
 	}
 
-	#if UNITY_ANDROID && !UNITY_EDITOR
+	#if UNITY_ANDROID && !UNITY_EDITOR && !NATIVE_EDIT_ANDROID_DISABLED
 	private void ForceSendKeydown_Android(string key)
 	{
 		JsonObject jsonMsg = new JsonObject();

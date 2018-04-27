@@ -21,6 +21,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// Disabling on Android because of Unity 5.6 incompatibilities, and issues with YT browser integration
+#define NATIVE_EDIT_ANDROID_DISABLED
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -202,7 +205,7 @@ public class PluginMsgHandler : MonoBehaviour {
 		
 	}
 
-	#elif UNITY_ANDROID 
+	#elif UNITY_ANDROID && !NATIVE_EDIT_ANDROID_DISABLED
 
 	private static AndroidJavaClass smAndroid;
 	public void InitializeHandler()
@@ -235,7 +238,7 @@ public class PluginMsgHandler : MonoBehaviour {
 	
 	public JsonObject SendMsgToPlugin(int nSenderId, JsonObject jsonMsg)
 	{	
-		#if UNITY_EDITOR || UNITY_STANDALONE
+		#if UNITY_EDITOR || UNITY_STANDALONE || (UNITY_ANDROID && NATIVE_EDIT_ANDROID_DISABLED)
 			return new JsonObject();
 		#else
 			jsonMsg["senderId"] = nSenderId;
