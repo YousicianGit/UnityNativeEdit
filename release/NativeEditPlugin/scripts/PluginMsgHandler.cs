@@ -81,7 +81,13 @@ public class PluginMsgHandler : MonoBehaviour {
 			return;
 		}
 		instance = gameObject;
-		DontDestroyOnLoad(gameObject);
+		
+		// If instantiated in a non-root object (e.g. Zenject ProjectContext subcontainer),
+		// Don't use DontDestroyOnLoad
+		if (gameObject.transform.parent == null)
+		{
+			DontDestroyOnLoad(gameObject);
+		}
 
 		int tempRandom = (int) UnityEngine.Random.Range(0, 10000.0f);
 		this.name = DEFAULT_NAME + tempRandom.ToString();
