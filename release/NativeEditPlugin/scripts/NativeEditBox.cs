@@ -70,6 +70,7 @@ public class NativeEditBox : PluginMsgReceiver
 	public bool useInputFieldFont;
 	public UnityEngine.Events.UnityEvent OnReturnPressed;
 	public UnityEngine.Events.UnityEvent OnBeginEditing;
+	public InputField.SubmitEvent OnValueChanged;
 
 	private bool bNativeEditCreated = false;
 
@@ -247,6 +248,8 @@ public class NativeEditBox : PluginMsgReceiver
 		this.objUnityInput.text = newText;
 		if (this.objUnityInput.onValueChanged != null)
 			this.objUnityInput.onValueChanged.Invoke(newText);
+
+		this.OnValueChanged?.Invoke(newText);
 	}
 
 	private void onTextEditEnd(string newText)
