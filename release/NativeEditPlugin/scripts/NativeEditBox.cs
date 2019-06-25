@@ -237,16 +237,6 @@ public class NativeEditBox : PluginMsgReceiver
 		mConfig.multiline = (objUnityInput.lineType == InputField.LineType.SingleLine) ? false : true;
 	}
 
-	private void updateUnityInputText(string newText)
-	{		
-		// Avoid firing a delayed onValueChanged event if the text was changed from Unity with the text property in this
-		// class.
-		if (newText == this.objUnityInput.text)
-			return;
-		
-		this.objUnityInput.text = newText;
-	}
-
 	public override void OnPluginMsgDirect(JsonObject jsonMsg)
 	{
 		PluginMsgHandler.getInst().StartCoroutine(PluginsMessageRoutine(jsonMsg));
@@ -258,20 +248,14 @@ public class NativeEditBox : PluginMsgReceiver
 		yield return null;
 
 		string msg = jsonMsg.GetString("msg");
-		if (msg.Equals(MSG_TEXT_CHANGE))
-		{
-			string text = jsonMsg.GetString("text");
-			this.updateUnityInputText(text);
-		}
-		else if (msg.Equals(MSG_TEXT_BEGIN_EDIT))
+		if (msg.Equals(MSG_TEXT_BEGIN_EDIT))
 		{
 			if (this.OnBeginEditing != null)
 				this.OnBeginEditing.Invoke();
 		}
-		else if (msg.Equals(MSG_TEXT_END_EDIT))
+		else if (msg.Equals(MSG_TEXT_CHANGE) || msg.Equals(MSG_TEXT_END_EDIT))
 		{
-			string text = jsonMsg.GetString("text");
-			this.updateUnityInputText(text);
+			this.objUnityInput.text = jsonMsg.GetString("text");
 		}
 		else if (msg.Equals(MSG_RETURN_PRESSED))
 		{
