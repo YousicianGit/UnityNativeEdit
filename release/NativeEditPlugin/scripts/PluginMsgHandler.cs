@@ -105,7 +105,6 @@ public class PluginMsgHandler : MonoBehaviour {
 
 	void OnDestroy()
 	{
-		FileLog("Application closed");
 		if (fileWriter != null) fileWriter.Close();
 		fileWriter = null;
 		this.FinalizeHandler();
