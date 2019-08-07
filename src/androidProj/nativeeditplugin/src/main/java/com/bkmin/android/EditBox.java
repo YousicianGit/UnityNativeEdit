@@ -71,6 +71,9 @@ public class EditBox {
     private static final String MSG_ANDROID_KEY_DOWN = "AndroidKeyDown";
     private static final String MSG_RETURN_PRESSED = "ReturnPressed";
 
+    private static final String APPLY_MASK_KEY = "applyMask";
+    private static final String AFFINE_MASKS_KEY = "affineMasks";
+
     public static void processRecvJsonMsg(int nSenderId, final String strJson)
     {
         if (mapEditBox == null) mapEditBox = new SparseArray<>();
@@ -375,14 +378,11 @@ public class EditBox {
 
     private TextWatcher getEditTextWatcher(JSONObject jsonObj, final EditBox editBox) throws JSONException {
 
-        final String applyMaskKey = "applyMask";
-        final String affineMasksKey = "affineMasks";
-
-        boolean applyMask = jsonObj.has(applyMaskKey) && jsonObj.getBoolean(applyMaskKey);
+        boolean applyMask = jsonObj.has(APPLY_MASK_KEY) && jsonObj.getBoolean(APPLY_MASK_KEY);
 
         if (applyMask) {
             String primaryMask = jsonObj.getString("primaryMask");
-            JSONArray affineMasks = jsonObj.isNull(affineMasksKey) ? new JSONArray() : jsonObj.getJSONArray(affineMasksKey);
+            JSONArray affineMasks = jsonObj.isNull(AFFINE_MASKS_KEY) ? new JSONArray() : jsonObj.getJSONArray(AFFINE_MASKS_KEY);
             int affinityStrategy = jsonObj.getInt("affinityStrategy");
             boolean useCustomPlaceholder = jsonObj.getBoolean("useCustomPlaceholder");
             String customPlaceholder = jsonObj.getString("customPlaceholder");
