@@ -17,18 +17,19 @@ public class MaskedNativeEditBox : NativeEditBox
 	private const string CustomPlaceholderKey = "customPlaceholder";
 
 	public MaskOptions MaskOptions { get; private set; }
+	public string ExtractedText { get; private set; }
 
 	/// <summary>
 	/// Event to call whenever the value changes. Will be called with the extracted value.
 	/// To get formatted values, listen <see cref="InputField.onValueChanged"/> event.
 	/// </summary>
-	public Action<string> OnValueChanged;
+	public event Action<string> OnValueChanged;
 
 	/// <summary>
 	/// Event to call when the editing has ended. Will be called with the extracted value.
 	/// To get formatted values, listen <see cref="InputField.onEndEdit"/> event.
 	/// </summary>
-	public Action<string> OnEndEdit;
+	public event Action<string> OnEndEdit;
 
 	private bool shouldApplyMask = true;
 
@@ -63,15 +64,15 @@ public class MaskedNativeEditBox : NativeEditBox
 		var msg = jsonMsg.GetString("msg");
 		if (msg.Equals(MSG_TEXT_CHANGE))
 		{
-			var extractedText = jsonMsg.GetString("extractedText");
+			this.ExtractedText = jsonMsg.GetString("extractedText");
 			if (this.OnValueChanged != null)
-				this.OnValueChanged(extractedText);
+				this.OnValueChanged(this.ExtractedText);
 		}
 		else if (msg.Equals(MSG_TEXT_END_EDIT))
 		{
-			var extractedText = jsonMsg.GetString("extractedText");
+			this.ExtractedText = jsonMsg.GetString("extractedText");
 			if (this.OnEndEdit != null)
-				this.OnEndEdit(extractedText);
+				this.OnEndEdit(this.ExtractedText);
 		}
 	}
 }
