@@ -1,5 +1,6 @@
 package com.bkmin.android;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,6 +24,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.redmadrobot.inputmask.MaskedTextChangedListener;
+import com.redmadrobot.inputmask.helper.AffinityCalculationStrategy;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EditBox {
 
@@ -319,7 +326,6 @@ public class EditBox {
             }
 
             final EditBox eb = this;
-
             edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
@@ -338,42 +344,8 @@ public class EditBox {
                 }
             });
 
-            edit.addTextChangedListener(new TextWatcher() {
-
-                public void afterTextChanged(Editable s)
-                {
-                    JSONObject jsonToUnity = new JSONObject();
-
-                    if(characterLimit > 0 && s.length() >= characterLimit+1)
-                    {
-                        s.delete(s.length() - 1,
-                                s.length());
-                        edit.setText(s);
-                        edit.setSelection(s.length());
-                    }
-
-                    try
-                    {
-                        jsonToUnity.put("msg", MSG_TEXT_CHANGE);
-                        jsonToUnity.put("text", s.toString());
-                    }
-                    catch(JSONException e) {}
-                    eb.SendJsonToUnity(jsonToUnity);
-                }
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start,
-                                              int count, int after) {
-                    // TODO Auto-generated method stub
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start,
-                                          int before, int count) {
-                    // TODO Auto-generated method stub
-
-                }
-            });
+            TextWatcher editTextWatcher = getEditTextWatcher(jsonObj, eb);
+            edit.addTextChangedListener(editTextWatcher);
 
             edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
@@ -399,6 +371,84 @@ public class EditBox {
         {
             Log.i(NativeEditPlugin.LOG_TAG, String.format("Create editbox error %s", e.getMessage()));
         }
+    }
+
+    private TextWatcher getEditTextWatcher(JSONObject jsonObj, final EditBox editBox) throws JSONException {
+
+        final String applyMaskKey = "applyMask";
+        final String affineMasksKey = "affineMasks";
+
+        boolean applyMask = jsonObj.has(applyMaskKey) && jsonObj.getBoolean(applyMaskKey);
+
+        if (applyMask) {
+            String primaryMask = jsonObj.getString("primaryMask");
+            JSONArray affineMasks = jsonObj.isNull(affineMasksKey) ? new JSONArray() : jsonObj.getJSONArray(affineMasksKey);
+            int affinityStrategy = jsonObj.getInt("affinityStrategy");
+            boolean useCustomPlaceholder = jsonObj.getBoolean("useCustomPlaceholder");
+            String customPlaceholder = jsonObj.getString("customPlaceholder");
+
+            // Convert JSONArray to List
+            List<String> affineMasksList = new ArrayList<>();
+            for (int i = 0; i < affineMasks.length(); i++) {
+                try {
+                    affineMasksList.add(affineMasks.getString(i));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            final MaskedTextChangedListener maskedTextChangedListener = new MaskedTextChangedListener(
+                    primaryMask,
+                    affineMasksList,
+                    GetAffinityCalculationStrategy(affinityStrategy),
+                    true,
+                    edit,
+                    null,
+                    new MaskedTextChangedListener.ValueListener() {
+                        @Override
+                        public void onTextChanged(boolean maskFilled, String extractedValue, String formattedValue) {
+                            editBox.SendTextToUnity(formattedValue);
+                        }
+                    });
+
+            String placeholder = useCustomPlaceholder ? customPlaceholder : maskedTextChangedListener.placeholder();
+            edit.setHint(placeholder);
+
+            return maskedTextChangedListener;
+        }
+
+        return defaultTextWatcher();
+    }
+
+    private TextWatcher defaultTextWatcher() {
+        return new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+                if (characterLimit > 0 && s.length() >= characterLimit + 1) {
+                    s.delete(s.length() - 1,
+                            s.length());
+                    edit.setText(s);
+                    edit.setSelection(s.length());
+                }
+                SendTextToUnity(s.toString());
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        };
+    }
+
+    private void SendTextToUnity(String text)
+    {
+        JSONObject jsonToUnity = new JSONObject();
+        try
+        {
+            jsonToUnity.put("msg", MSG_TEXT_CHANGE);
+            jsonToUnity.put("text", text);
+        }
+        catch(JSONException e) {}
+        SendJsonToUnity(jsonToUnity);
     }
 
     private void Remove()
@@ -527,6 +577,22 @@ public class EditBox {
             KeyEvent ke = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
             Log.i(NativeEditPlugin.LOG_TAG, String.format("Force fire KEY EVENT %d", keyCode));
             edit.onKeyDown(keyCode, ke);
+        }
+    }
+
+    private static AffinityCalculationStrategy GetAffinityCalculationStrategy(int value)
+    {
+        switch (value) {
+            case 0:
+                return AffinityCalculationStrategy.PREFIX;
+            case 1:
+                return AffinityCalculationStrategy.WHOLE_STRING;
+            case 2:
+                return AffinityCalculationStrategy.CAPACITY;
+            case 3:
+                return AffinityCalculationStrategy.EXTRACTED_VALUE_CAPACITY;
+            default:
+                return AffinityCalculationStrategy.PREFIX;
         }
     }
 }

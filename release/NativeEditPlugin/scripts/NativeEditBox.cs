@@ -96,6 +96,8 @@ public class NativeEditBox : PluginMsgReceiver
 	public InputField InputField { get { return objUnityInput; } }
 	public bool Visible { get; private set; }
 
+	protected virtual void AppendExtraFieldsForCreation(JsonObject jsonObject) { }
+
 	public string text
 	{
 		get { return objUnityInput.text; }
@@ -310,6 +312,7 @@ public class NativeEditBox : PluginMsgReceiver
 		jsonMsg["placeHolderColor_b"] = mConfig.placeHolderColor.b;
 		jsonMsg["placeHolderColor_a"] = mConfig.placeHolderColor.a;
 		jsonMsg["multiline"] = mConfig.multiline;
+		this.AppendExtraFieldsForCreation(jsonMsg);
 
 		switch (returnKeyType)
 		{
