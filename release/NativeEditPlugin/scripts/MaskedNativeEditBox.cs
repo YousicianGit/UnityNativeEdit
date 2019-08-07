@@ -49,6 +49,12 @@ public class MaskedNativeEditBox : NativeEditBox
 
 	protected override void AppendExtraFieldsForCreation(JsonObject jsonObject)
 	{
+		if (this.MaskOptions == null)
+		{
+			jsonObject[ApplyMaskKey] = false;
+			return;
+		}
+
 		jsonObject[ApplyMaskKey] = this.shouldApplyMask;
 		jsonObject[PrimaryMaskKey] = this.MaskOptions.primaryMask;
 		jsonObject[AffineMasksKey] = this.MaskOptions.affineMasks;
