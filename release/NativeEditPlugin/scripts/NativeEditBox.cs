@@ -85,9 +85,9 @@ public class NativeEditBox : PluginMsgReceiver
 	private const string MSG_SET_TEXTSIZE = "SetTextSize";
 	private const string MSG_SET_FOCUS = "SetFocus";
 	private const string MSG_SET_VISIBLE = "SetVisible";
-	private const string MSG_TEXT_CHANGE = "TextChange";
+	protected const string MSG_TEXT_CHANGE = "TextChange";
 	private const string MSG_TEXT_BEGIN_EDIT = "TextBeginEdit";
-	private const string MSG_TEXT_END_EDIT = "TextEndEdit";
+	protected const string MSG_TEXT_END_EDIT = "TextEndEdit";
 	// to fix bug Some keys 'back' & 'enter' are eaten by unity and never arrive at plugin
 	private const string MSG_ANDROID_KEY_DOWN = "AndroidKeyDown";
 	private const string MSG_RETURN_PRESSED = "ReturnPressed";
@@ -241,14 +241,18 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public override void OnPluginMsgDirect(JsonObject jsonMsg)
 	{
-		PluginMsgHandler.getInst().StartCoroutine(PluginsMessageRoutine(jsonMsg));
+		PluginMsgHandler.getInst().StartCoroutine(this.HandlePluginMessageOnNextFrame(jsonMsg));
 	}
 
-	private IEnumerator PluginsMessageRoutine(JsonObject jsonMsg)
+	private IEnumerator HandlePluginMessageOnNextFrame(JsonObject jsonMsg)
 	{
 		// this is to avoid a deadlock for more info when trying to get data from two separate native plugins and handling them in Unity
 		yield return null;
+		this.HandlePluginMessage(jsonMsg);
+	}
 
+	protected virtual void HandlePluginMessage(JsonObject jsonMsg)
+	{
 		string msg = jsonMsg.GetString("msg");
 		if (msg.Equals(MSG_TEXT_BEGIN_EDIT))
 		{

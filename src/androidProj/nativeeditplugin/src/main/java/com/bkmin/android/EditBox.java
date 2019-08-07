@@ -56,6 +56,8 @@ public class EditBox {
     private final RelativeLayout layout;
     private int tag;
     private int characterLimit;
+    private String extractedText = "";
+    private String formattedText = "";
 
     private static SparseArray<EditBox> mapEditBox = null;
     private static final String MSG_CREATE = "CreateEdit";
@@ -333,16 +335,7 @@ public class EditBox {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
 
-                    // your action here
-                    JSONObject msgTextEndJSON = new JSONObject();
-                    try
-                    {
-                        msgTextEndJSON.put("msg", hasFocus ? MSG_TEXT_BEGIN_EDIT : MSG_TEXT_END_EDIT);
-                        msgTextEndJSON.put("text", eb.GetText());
-                    }
-                    catch(JSONException e) {}
-                    eb.SendJsonToUnity(msgTextEndJSON);
-
+                    SendTextToUnity(hasFocus ? MSG_TEXT_BEGIN_EDIT : MSG_TEXT_END_EDIT);
                     SetFocus(hasFocus);
                 }
             });
@@ -407,7 +400,9 @@ public class EditBox {
                     new MaskedTextChangedListener.ValueListener() {
                         @Override
                         public void onTextChanged(boolean maskFilled, String extractedValue, String formattedValue) {
-                            editBox.SendTextToUnity(formattedValue);
+                            editBox.extractedText = extractedValue;
+                            editBox.formattedText = formattedValue;
+                            editBox.SendTextToUnity(MSG_TEXT_CHANGE);
                         }
                     });
 
@@ -429,7 +424,9 @@ public class EditBox {
                     edit.setText(s);
                     edit.setSelection(s.length());
                 }
-                SendTextToUnity(s.toString());
+                extractedText = s.toString();
+                formattedText = extractedText;
+                SendTextToUnity(MSG_TEXT_CHANGE);
             }
 
             @Override
@@ -439,13 +436,14 @@ public class EditBox {
         };
     }
 
-    private void SendTextToUnity(String text)
+    private void SendTextToUnity(String messageKey)
     {
         JSONObject jsonToUnity = new JSONObject();
         try
         {
-            jsonToUnity.put("msg", MSG_TEXT_CHANGE);
-            jsonToUnity.put("text", text);
+            jsonToUnity.put("msg", messageKey);
+            jsonToUnity.put("text", formattedText);
+            jsonToUnity.put("extractedText", extractedText);
         }
         catch(JSONException e) {}
         SendJsonToUnity(jsonToUnity);

@@ -1,3 +1,6 @@
+using System;
+using UnityEngine.UI;
+
 /// <summary>
 /// Formats the value depending on the given mask options.
 /// </summary>
@@ -14,6 +17,19 @@ public class MaskedNativeEditBox : NativeEditBox
 	private const string CustomPlaceholderKey = "customPlaceholder";
 
 	public MaskOptions MaskOptions { get; private set; }
+
+	/// <summary>
+	/// Event to call whenever the value changes. Will be called with the extracted value.
+	/// To get formatted values, listen <see cref="InputField.onValueChanged"/> event.
+	/// </summary>
+	public Action<string> OnValueChanged;
+
+	/// <summary>
+	/// Event to call when the editing has ended. Will be called with the extracted value.
+	/// To get formatted values, listen <see cref="InputField.onEndEdit"/> event.
+	/// </summary>
+	public Action<string> OnEndEdit;
+
 	private bool shouldApplyMask = true;
 
 	/// <summary>
@@ -38,5 +54,24 @@ public class MaskedNativeEditBox : NativeEditBox
 		jsonObject[AffinityStrategyKey] = (int)this.MaskOptions.affinityStrategy;
 		jsonObject[UseCustomPlaceholderKey] = this.MaskOptions.useCustomPlaceholder;
 		jsonObject[CustomPlaceholderKey] = this.MaskOptions.customPlaceholder;
+	}
+
+	protected override void HandlePluginMessage(JsonObject jsonMsg)
+	{
+		base.HandlePluginMessage(jsonMsg);
+
+		var msg = jsonMsg.GetString("msg");
+		if (msg.Equals(MSG_TEXT_CHANGE))
+		{
+			var extractedText = jsonMsg.GetString("extractedText");
+			if (this.OnValueChanged != null)
+				this.OnValueChanged(extractedText);
+		}
+		else if (msg.Equals(MSG_TEXT_END_EDIT))
+		{
+			var extractedText = jsonMsg.GetString("extractedText");
+			if (this.OnEndEdit != null)
+				this.OnEndEdit(extractedText);
+		}
 	}
 }
