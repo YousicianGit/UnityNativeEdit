@@ -6,6 +6,15 @@ using System.Collections.Generic;
 /// </summary>
 public class MaskOptions
 {
+	/// <summary>
+	/// Strategy to calculate affinity value. For more information,
+	/// see <see href="https://github.com/RedMadRobot/input-mask-android/wiki"/>
+	/// </summary>
+	/// <remarks>
+	/// Integer value of this enum will be sent to the native side where it's
+	/// converted from int to related native enum value again.
+	/// On Android, EditBox.java does this conversion.
+	/// </remarks>
 	public enum AffinityCalculationStrategy
 	{
 		Prefix = 0,
