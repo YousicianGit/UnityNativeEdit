@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -75,6 +76,7 @@ public class EditBox {
 
     private static final String APPLY_MASK_KEY = "applyMask";
     private static final String AFFINE_MASKS_KEY = "affineMasks";
+    private static final String EXTRA_CHARACTERS_FOR_DIGITS_KEY = "extraCharactersForDigits";
 
     public static void processRecvJsonMsg(int nSenderId, final String strJson)
     {
@@ -380,19 +382,20 @@ public class EditBox {
             boolean useCustomPlaceholder = jsonObj.getBoolean("useCustomPlaceholder");
             String customPlaceholder = jsonObj.getString("customPlaceholder");
 
-            // Convert JSONArray to List
-            List<String> affineMasksList = new ArrayList<>();
-            for (int i = 0; i < affineMasks.length(); i++) {
-                try {
-                    affineMasksList.add(affineMasks.getString(i));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            boolean useExtraCharactersForDigits =
+                    !jsonObj.isNull(EXTRA_CHARACTERS_FOR_DIGITS_KEY) &&
+                    (edit.getInputType() & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER;
+
+            if (useExtraCharactersForDigits)
+            {
+                String extraCharactersForDigits = jsonObj.getString(EXTRA_CHARACTERS_FOR_DIGITS_KEY);
+                if (!extraCharactersForDigits.isEmpty())
+                    edit.setKeyListener(DigitsKeyListener.getInstance(extraCharactersForDigits));
             }
 
             final MaskedTextChangedListener maskedTextChangedListener = new MaskedTextChangedListener(
                     primaryMask,
-                    affineMasksList,
+                    JSONArrayToStringList(affineMasks),
                     GetAffinityCalculationStrategy(affinityStrategy),
                     true,
                     edit,
@@ -592,5 +595,17 @@ public class EditBox {
             default:
                 return AffinityCalculationStrategy.PREFIX;
         }
+    }
+
+    private List<String> JSONArrayToStringList(JSONArray jsonArray) {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                list.add(jsonArray.getString(i));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
     }
 }

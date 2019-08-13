@@ -15,6 +15,7 @@ public class MaskedNativeEditBox : NativeEditBox
 	private const string AffinityStrategyKey = "affinityStrategy";
 	private const string UseCustomPlaceholderKey = "useCustomPlaceholder";
 	private const string CustomPlaceholderKey = "customPlaceholder";
+	private const string ExtraCharactersForDigitsKey = "extraCharactersForDigits";
 
 	public MaskOptions MaskOptions { get; private set; }
 	public string ExtractedText { get; private set; }
@@ -56,11 +57,12 @@ public class MaskedNativeEditBox : NativeEditBox
 		}
 
 		jsonObject[ApplyMaskKey] = this.shouldApplyMask;
-		jsonObject[PrimaryMaskKey] = this.MaskOptions.primaryMask;
-		jsonObject[AffineMasksKey] = this.MaskOptions.affineMasks;
-		jsonObject[AffinityStrategyKey] = (int)this.MaskOptions.affinityStrategy;
-		jsonObject[UseCustomPlaceholderKey] = this.MaskOptions.useCustomPlaceholder;
-		jsonObject[CustomPlaceholderKey] = this.MaskOptions.customPlaceholder;
+		jsonObject[PrimaryMaskKey] = this.MaskOptions.PrimaryMask;
+		jsonObject[AffineMasksKey] = this.MaskOptions.AffineMasks;
+		jsonObject[AffinityStrategyKey] = (int)this.MaskOptions.AffinityStrategy;
+		jsonObject[UseCustomPlaceholderKey] = this.MaskOptions.UseCustomPlaceholder;
+		jsonObject[CustomPlaceholderKey] = this.MaskOptions.CustomPlaceholder;
+		jsonObject[ExtraCharactersForDigitsKey] = this.MaskOptions.ExtraCharactersForDigits;
 	}
 
 	protected override void HandlePluginMessage(JsonObject jsonMsg)
