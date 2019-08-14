@@ -27,6 +27,8 @@ repositories {
 dependencies {
     provided files('./libs/UnityPlayer.jar')
     compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.redmadrobot:input-mask-android:4.3.1'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.3.41'
 }
 
 task clearJar(type: Delete) {

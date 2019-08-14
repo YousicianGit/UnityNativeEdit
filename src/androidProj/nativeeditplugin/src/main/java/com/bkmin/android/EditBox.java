@@ -1,5 +1,6 @@
 package com.bkmin.android;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,6 +13,7 @@ import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -23,6 +25,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.redmadrobot.inputmask.MaskedTextChangedListener;
+import com.redmadrobot.inputmask.helper.AffinityCalculationStrategy;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EditBox {
 
@@ -49,6 +57,8 @@ public class EditBox {
     private final RelativeLayout layout;
     private int tag;
     private int characterLimit;
+    private String extractedText = "";
+    private String formattedText = "";
 
     private static SparseArray<EditBox> mapEditBox = null;
     private static final String MSG_CREATE = "CreateEdit";
@@ -63,6 +73,10 @@ public class EditBox {
     private static final String MSG_TEXT_END_EDIT = "TextEndEdit";
     private static final String MSG_ANDROID_KEY_DOWN = "AndroidKeyDown";
     private static final String MSG_RETURN_PRESSED = "ReturnPressed";
+
+    private static final String APPLY_MASK_KEY = "applyMask";
+    private static final String AFFINE_MASKS_KEY = "affineMasks";
+    private static final String EXTRA_CHARACTERS_FOR_DIGITS_KEY = "extraCharactersForDigits";
 
     public static void processRecvJsonMsg(int nSenderId, final String strJson)
     {
@@ -319,61 +333,17 @@ public class EditBox {
             }
 
             final EditBox eb = this;
-
             edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
 
-                    // your action here
-                    JSONObject msgTextEndJSON = new JSONObject();
-                    try
-                    {
-                        msgTextEndJSON.put("msg", hasFocus ? MSG_TEXT_BEGIN_EDIT : MSG_TEXT_END_EDIT);
-                        msgTextEndJSON.put("text", eb.GetText());
-                    }
-                    catch(JSONException e) {}
-                    eb.SendJsonToUnity(msgTextEndJSON);
-
+                    SendTextToUnity(hasFocus ? MSG_TEXT_BEGIN_EDIT : MSG_TEXT_END_EDIT);
                     SetFocus(hasFocus);
                 }
             });
 
-            edit.addTextChangedListener(new TextWatcher() {
-
-                public void afterTextChanged(Editable s)
-                {
-                    JSONObject jsonToUnity = new JSONObject();
-
-                    if(characterLimit > 0 && s.length() >= characterLimit+1)
-                    {
-                        s.delete(s.length() - 1,
-                                s.length());
-                        edit.setText(s);
-                        edit.setSelection(s.length());
-                    }
-
-                    try
-                    {
-                        jsonToUnity.put("msg", MSG_TEXT_CHANGE);
-                        jsonToUnity.put("text", s.toString());
-                    }
-                    catch(JSONException e) {}
-                    eb.SendJsonToUnity(jsonToUnity);
-                }
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start,
-                                              int count, int after) {
-                    // TODO Auto-generated method stub
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start,
-                                          int before, int count) {
-                    // TODO Auto-generated method stub
-
-                }
-            });
+            TextWatcher editTextWatcher = getEditTextWatcher(jsonObj, eb);
+            edit.addTextChangedListener(editTextWatcher);
 
             edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
@@ -399,6 +369,87 @@ public class EditBox {
         {
             Log.i(NativeEditPlugin.LOG_TAG, String.format("Create editbox error %s", e.getMessage()));
         }
+    }
+
+    private TextWatcher getEditTextWatcher(JSONObject jsonObj, final EditBox editBox) throws JSONException {
+
+        boolean applyMask = jsonObj.has(APPLY_MASK_KEY) && jsonObj.getBoolean(APPLY_MASK_KEY);
+
+        if (applyMask) {
+            String primaryMask = jsonObj.getString("primaryMask");
+            JSONArray affineMasks = jsonObj.isNull(AFFINE_MASKS_KEY) ? new JSONArray() : jsonObj.getJSONArray(AFFINE_MASKS_KEY);
+            int affinityStrategy = jsonObj.getInt("affinityStrategy");
+            boolean useCustomPlaceholder = jsonObj.getBoolean("useCustomPlaceholder");
+            String customPlaceholder = jsonObj.getString("customPlaceholder");
+
+            boolean useExtraCharactersForDigits =
+                    !jsonObj.isNull(EXTRA_CHARACTERS_FOR_DIGITS_KEY) &&
+                    (edit.getInputType() & InputType.TYPE_CLASS_NUMBER) == InputType.TYPE_CLASS_NUMBER;
+
+            if (useExtraCharactersForDigits)
+            {
+                String extraCharactersForDigits = jsonObj.getString(EXTRA_CHARACTERS_FOR_DIGITS_KEY);
+                if (!extraCharactersForDigits.isEmpty())
+                    edit.setKeyListener(DigitsKeyListener.getInstance(extraCharactersForDigits));
+            }
+
+            final MaskedTextChangedListener maskedTextChangedListener = new MaskedTextChangedListener(
+                    primaryMask,
+                    JSONArrayToStringList(affineMasks),
+                    GetAffinityCalculationStrategy(affinityStrategy),
+                    true,
+                    edit,
+                    null,
+                    new MaskedTextChangedListener.ValueListener() {
+                        @Override
+                        public void onTextChanged(boolean maskFilled, String extractedValue, String formattedValue) {
+                            editBox.extractedText = extractedValue;
+                            editBox.formattedText = formattedValue;
+                            editBox.SendTextToUnity(MSG_TEXT_CHANGE);
+                        }
+                    });
+
+            String placeholder = useCustomPlaceholder ? customPlaceholder : maskedTextChangedListener.placeholder();
+            edit.setHint(placeholder);
+
+            return maskedTextChangedListener;
+        }
+
+        return defaultTextWatcher();
+    }
+
+    private TextWatcher defaultTextWatcher() {
+        return new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+                if (characterLimit > 0 && s.length() >= characterLimit + 1) {
+                    s.delete(s.length() - 1,
+                            s.length());
+                    edit.setText(s);
+                    edit.setSelection(s.length());
+                }
+                extractedText = s.toString();
+                formattedText = extractedText;
+                SendTextToUnity(MSG_TEXT_CHANGE);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        };
+    }
+
+    private void SendTextToUnity(String messageKey)
+    {
+        JSONObject jsonToUnity = new JSONObject();
+        try
+        {
+            jsonToUnity.put("msg", messageKey);
+            jsonToUnity.put("text", formattedText);
+            jsonToUnity.put("extractedText", extractedText);
+        }
+        catch(JSONException e) {}
+        SendJsonToUnity(jsonToUnity);
     }
 
     private void Remove()
@@ -528,5 +579,33 @@ public class EditBox {
             Log.i(NativeEditPlugin.LOG_TAG, String.format("Force fire KEY EVENT %d", keyCode));
             edit.onKeyDown(keyCode, ke);
         }
+    }
+
+    private static AffinityCalculationStrategy GetAffinityCalculationStrategy(int value)
+    {
+        switch (value) {
+            case 0:
+                return AffinityCalculationStrategy.PREFIX;
+            case 1:
+                return AffinityCalculationStrategy.WHOLE_STRING;
+            case 2:
+                return AffinityCalculationStrategy.CAPACITY;
+            case 3:
+                return AffinityCalculationStrategy.EXTRACTED_VALUE_CAPACITY;
+            default:
+                return AffinityCalculationStrategy.PREFIX;
+        }
+    }
+
+    private List<String> JSONArrayToStringList(JSONArray jsonArray) {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                list.add(jsonArray.getString(i));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
     }
 }
