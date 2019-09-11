@@ -247,6 +247,7 @@ bool approxEqualFloat(float x, float y)
     UIColor* placeHolderColor = [UIColor colorWithRed:placeHolderColor_r green:placeHolderColor_g blue:placeHolderColor_b alpha:placeHolderColor_a];
     
     NSString* contentType = [json getString:@"contentType"];
+    NSString* keyboardType = [json getString:@"keyboardType"];
     NSString* alignment = [json getString:@"align"];
     BOOL withDoneButton = [json getBool:@"withDoneButton"];
     BOOL multiline = [json getBool:@"multiline"];
@@ -259,35 +260,49 @@ bool approxEqualFloat(float x, float y)
     {
         autoCorr = YES;
     }
-    else if ([contentType isEqualToString:@"IntegerNumber"])
-    {
-        keyType = UIKeyboardTypeNumberPad;
-    }
-    else if ([contentType isEqualToString:@"DecimalNumber"])
-    {
-        keyType = UIKeyboardTypeDecimalPad;
-    }
-    else if ([contentType isEqualToString:@"Alphanumeric"])
-    {
-        keyType = UIKeyboardTypeAlphabet;
-    }
-    else if ([contentType isEqualToString:@"Name"])
-    {
-        keyType = UIKeyboardTypeNamePhonePad;
-    }
-    else if ([contentType isEqualToString:@"EmailAddress"])
-    {
-        keyType = UIKeyboardTypeEmailAddress;
-    }
     else if ([contentType isEqualToString:@"Password"])
     {
         password = YES;
     }
-    else if ([contentType isEqualToString:@"Pin"])
+
+    // We don't need to look at the content type to determine the keyboard type, as Unity InputField will fill in the right type.
+    if ([keyboardType isEqualToString:@"ASCIICapable"])
+    {
+        keyType = UIKeyboardTypeASCIICapable;
+    }
+    else if ([keyboardType isEqualToString:@"NumbersAndPunctuation"])
+    {
+        keyType = UIKeyboardTypeNumbersAndPunctuation;
+    }
+    else if ([keyboardType isEqualToString:@"URL"])
+    {
+        keyType = UIKeyboardTypeURL;
+    }
+    else if ([keyboardType isEqualToString:@"NumberPad"])
+    {
+        keyType = UIKeyboardTypeNumberPad;
+    }
+    else if ([keyboardType isEqualToString:@"PhonePad"])
     {
         keyType = UIKeyboardTypePhonePad;
     }
-    
+    else if ([keyboardType isEqualToString:@"NamePhonePad"])
+    {
+        keyType = UIKeyboardTypeNamePhonePad;
+    }
+    else if ([keyboardType isEqualToString:@"EmailAddress"])
+    {
+        keyType = UIKeyboardTypeEmailAddress;
+    }
+    else if ([keyboardType isEqualToString:@"Social"])
+    {
+        keyType = UIKeyboardTypeTwitter;
+    }
+    else if ([keyboardType isEqualToString:@"Search"])
+    {
+        keyType = UIKeyboardTypeWebSearch;
+    }
+
     UIControlContentHorizontalAlignment halign = UIControlContentHorizontalAlignmentLeft;
     UIControlContentVerticalAlignment valign = UIControlContentVerticalAlignmentCenter;
     
