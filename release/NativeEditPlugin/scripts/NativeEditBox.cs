@@ -46,6 +46,7 @@ public class NativeEditBox : PluginMsgReceiver
 		public Color textColor;
 		public Color backColor;
 		public string contentType;
+		public string keyboardType;
 		public string font;
 		public float fontSize;
 		public string align;
@@ -235,6 +236,7 @@ public class NativeEditBox : PluginMsgReceiver
 		mConfig.textColor = objUnityText.color;
 		mConfig.align = objUnityText.alignment.ToString();
 		mConfig.contentType = objUnityInput.contentType.ToString();
+		mConfig.keyboardType = objUnityInput.keyboardType.ToString();
 		mConfig.backColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
 		mConfig.multiline = (objUnityInput.lineType == InputField.LineType.SingleLine) ? false : true;
 	}
@@ -308,6 +310,7 @@ public class NativeEditBox : PluginMsgReceiver
 		jsonMsg["font"] = mConfig.font;
 		jsonMsg["fontSize"] = mConfig.fontSize;
 		jsonMsg["contentType"] = mConfig.contentType;
+		jsonMsg["keyboardType"] = mConfig.keyboardType;
 		jsonMsg["align"] = mConfig.align;
 		jsonMsg["withDoneButton"] = this.withDoneButton;
 		jsonMsg["placeHolder"] = mConfig.placeHolder;
