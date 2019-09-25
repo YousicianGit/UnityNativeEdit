@@ -29,6 +29,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -527,18 +528,22 @@ namespace MiniJSON_Min {
             }
 
             void SerializeOther(object value) {
-                if (value is float
-                    || value is int
-                    || value is uint
+                if (value is int
                     || value is long
-                    || value is double
                     || value is sbyte
-                    || value is byte
-                    || value is short
-                    || value is ushort
-                    || value is ulong
-                    || value is decimal) {
-                    builder.Append(value.ToString());
+                    || value is short) {
+                    builder.Append(Convert.ToInt64(value).ToString(CultureInfo.InvariantCulture));
+                }
+                else if (value is uint
+	                || value is byte
+	                || value is ushort
+	                || value is ulong) {
+	                builder.Append(Convert.ToUInt64(value).ToString(CultureInfo.InvariantCulture));
+                }
+                else if (value is float
+	                || value is double
+	                || value is decimal) {
+	                builder.Append(Convert.ToDecimal(value).ToString(CultureInfo.InvariantCulture));
                 }
                 else {
                     SerializeString(value.ToString());
