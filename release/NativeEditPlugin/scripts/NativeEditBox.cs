@@ -53,6 +53,7 @@ public class NativeEditBox : PluginMsgReceiver
 		public string placeHolder;
 		public int characterLimit;
 		public Color placeHolderColor;
+		public IosContentTypeOverride iosContentTypeOverride;
 	}
 
 	public enum ReturnKeyType
@@ -61,9 +62,18 @@ public class NativeEditBox : PluginMsgReceiver
 		Next,
 		Done
 	}
-		
+
+	private enum IosContentTypeOverride
+	{
+		None,
+		Username,
+		Password,
+		NewPassword,
+	}
+
 	public bool	withDoneButton = true;
 	public ReturnKeyType returnKeyType;
+	[SerializeField] private IosContentTypeOverride iosContentTypeOverride;
 
 	public event Action returnPressed;
 
@@ -239,6 +249,7 @@ public class NativeEditBox : PluginMsgReceiver
 		mConfig.keyboardType = objUnityInput.keyboardType.ToString();
 		mConfig.backColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
 		mConfig.multiline = (objUnityInput.lineType == InputField.LineType.SingleLine) ? false : true;
+		this.mConfig.iosContentTypeOverride = this.iosContentTypeOverride;
 	}
 
 	public override void OnPluginMsgDirect(JsonObject jsonMsg)
@@ -319,6 +330,7 @@ public class NativeEditBox : PluginMsgReceiver
 		jsonMsg["placeHolderColor_b"] = mConfig.placeHolderColor.b;
 		jsonMsg["placeHolderColor_a"] = mConfig.placeHolderColor.a;
 		jsonMsg["multiline"] = mConfig.multiline;
+		jsonMsg["contentTypeOverride"] = this.mConfig.iosContentTypeOverride.ToString();
 		this.AppendExtraFieldsForCreation(jsonMsg);
 
 		switch (returnKeyType)
