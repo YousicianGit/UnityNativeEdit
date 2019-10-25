@@ -422,17 +422,20 @@ bool approxEqualFloat(float x, float y)
         /// Todo
         /// UITextView Alignment is not implemented
 
-        if ([contentTypeOverride isEqualToString:@"Username"])
+        if (@available(iOS 12.0, *))
         {
-            textView.textContentType = UITextContentTypeUsername;
-        }
-        else if ([contentTypeOverride isEqualToString:@"Password"])
-        {
-            textView.textContentType = UITextContentTypePassword;
-        }
-        else if ([contentTypeOverride isEqualToString:@"NewPassword"])
-        {
-            textView.textContentType = UITextContentTypeNewPassword;
+            if ([contentTypeOverride isEqualToString:@"Username"])
+            {
+                textView.textContentType = UITextContentTypeUsername;
+            }
+            else if ([contentTypeOverride isEqualToString:@"Password"])
+            {
+                textView.textContentType = UITextContentTypePassword;
+            }
+            else if ([contentTypeOverride isEqualToString:@"NewPassword"])
+            {
+                textView.textContentType = UITextContentTypeNewPassword;
+            }
         }
         
         editView = textView;
@@ -461,17 +464,20 @@ bool approxEqualFloat(float x, float y)
         [textField setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textField.inputAccessoryView = keyboardDoneButtonView;
 
-        if ([contentTypeOverride isEqualToString:@"Username"])
+        if (@available(iOS 12.0, *))
         {
-            textField.textContentType = UITextContentTypeUsername;
-        }
-        else if ([contentTypeOverride isEqualToString:@"Password"])
-        {
-            textField.textContentType = UITextContentTypePassword;
-        }
-        else if ([contentTypeOverride isEqualToString:@"NewPassword"])
-        {
-            textField.textContentType = UITextContentTypeNewPassword;
+            if ([contentTypeOverride isEqualToString:@"Username"])
+            {
+                textField.textContentType = UITextContentTypeUsername;
+            }
+            else if ([contentTypeOverride isEqualToString:@"Password"])
+            {
+                textField.textContentType = UITextContentTypePassword;
+            }
+            else if ([contentTypeOverride isEqualToString:@"NewPassword"])
+            {
+                textField.textContentType = UITextContentTypeNewPassword;
+            }
         }
 
         editView = textField;
