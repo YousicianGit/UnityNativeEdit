@@ -251,6 +251,7 @@ bool approxEqualFloat(float x, float y)
     NSString* alignment = [json getString:@"align"];
     BOOL withDoneButton = [json getBool:@"withDoneButton"];
     BOOL multiline = [json getBool:@"multiline"];
+    NSString* contentTypeOverride = [json getString:@"contentTypeOverride"];
     
     BOOL autoCorr = NO;
     BOOL password = NO;
@@ -417,10 +418,22 @@ bool approxEqualFloat(float x, float y)
         
         [textView setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textView.inputAccessoryView = keyboardDoneButtonView;
-        
-        
+
         /// Todo
         /// UITextView Alignment is not implemented
+
+        if ([contentTypeOverride isEqualToString:@"Username"])
+        {
+            textView.textContentType = UITextContentTypeUsername;
+        }
+        else if ([contentTypeOverride isEqualToString:@"Password"])
+        {
+            textView.textContentType = UITextContentTypePassword;
+        }
+        else if ([contentTypeOverride isEqualToString:@"NewPassword"])
+        {
+            textView.textContentType = UITextContentTypeNewPassword;
+        }
         
         editView = textView;
     }
@@ -447,7 +460,20 @@ bool approxEqualFloat(float x, float y)
         [textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
         [textField setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textField.inputAccessoryView = keyboardDoneButtonView;
-        
+
+        if ([contentTypeOverride isEqualToString:@"Username"])
+        {
+            textField.textContentType = UITextContentTypeUsername;
+        }
+        else if ([contentTypeOverride isEqualToString:@"Password"])
+        {
+            textField.textContentType = UITextContentTypePassword;
+        }
+        else if ([contentTypeOverride isEqualToString:@"NewPassword"])
+        {
+            textField.textContentType = UITextContentTypeNewPassword;
+        }
+
         editView = textField;
     }
     [viewPlugin addSubview:editView];
