@@ -63,6 +63,7 @@ public class NativeEditBox : PluginMsgReceiver
 		Done
 	}
 
+	// The name of these enum values has to exactly match the string check in iOS native code
 	private enum IosContentTypeOverride
 	{
 		None,
@@ -330,7 +331,7 @@ public class NativeEditBox : PluginMsgReceiver
 		jsonMsg["placeHolderColor_b"] = mConfig.placeHolderColor.b;
 		jsonMsg["placeHolderColor_a"] = mConfig.placeHolderColor.a;
 		jsonMsg["multiline"] = mConfig.multiline;
-		jsonMsg["contentTypeOverride"] = this.mConfig.iosContentTypeOverride.ToString();
+		jsonMsg["iosContentTypeOverride"] = this.mConfig.iosContentTypeOverride.ToString();
 		this.AppendExtraFieldsForCreation(jsonMsg);
 
 		switch (returnKeyType)

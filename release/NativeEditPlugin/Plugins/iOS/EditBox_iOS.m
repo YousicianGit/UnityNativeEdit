@@ -251,7 +251,7 @@ bool approxEqualFloat(float x, float y)
     NSString* alignment = [json getString:@"align"];
     BOOL withDoneButton = [json getBool:@"withDoneButton"];
     BOOL multiline = [json getBool:@"multiline"];
-    NSString* contentTypeOverride = [json getString:@"contentTypeOverride"];
+    NSString* contentTypeOverride = [json getString:@"iosContentTypeOverride"];
     
     BOOL autoCorr = NO;
     BOOL password = NO;
@@ -390,8 +390,25 @@ bool approxEqualFloat(float x, float y)
     else
     {
         uiFont = [UIFont systemFontOfSize:fontSize];
-    }    
-    
+    }
+
+    NSString* contentType;
+    if (@available(iOS 12.0, *))
+    {
+        if ([contentTypeOverride isEqualToString:@"Username"])
+        {
+            contentType = UITextContentTypeUsername;
+        }
+        else if ([contentTypeOverride isEqualToString:@"Password"])
+        {
+            contentType = UITextContentTypePassword;
+        }
+        else if ([contentTypeOverride isEqualToString:@"NewPassword"])
+        {
+            contentType = UITextContentTypeNewPassword;
+        }
+    }
+
     if (multiline)
     {
         PlaceholderTextView* textView = [[PlaceholderTextView alloc] initWithFrame:CGRectMake(x, y, width, height)];
@@ -422,20 +439,9 @@ bool approxEqualFloat(float x, float y)
         /// Todo
         /// UITextView Alignment is not implemented
 
-        if (@available(iOS 12.0, *))
+        if (contentType != nil)
         {
-            if ([contentTypeOverride isEqualToString:@"Username"])
-            {
-                textView.textContentType = UITextContentTypeUsername;
-            }
-            else if ([contentTypeOverride isEqualToString:@"Password"])
-            {
-                textView.textContentType = UITextContentTypePassword;
-            }
-            else if ([contentTypeOverride isEqualToString:@"NewPassword"])
-            {
-                textView.textContentType = UITextContentTypeNewPassword;
-            }
+            textView.textContentType = contentType;
         }
         
         editView = textView;
@@ -464,20 +470,9 @@ bool approxEqualFloat(float x, float y)
         [textField setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textField.inputAccessoryView = keyboardDoneButtonView;
 
-        if (@available(iOS 12.0, *))
+        if (contentType != nil)
         {
-            if ([contentTypeOverride isEqualToString:@"Username"])
-            {
-                textField.textContentType = UITextContentTypeUsername;
-            }
-            else if ([contentTypeOverride isEqualToString:@"Password"])
-            {
-                textField.textContentType = UITextContentTypePassword;
-            }
-            else if ([contentTypeOverride isEqualToString:@"NewPassword"])
-            {
-                textField.textContentType = UITextContentTypeNewPassword;
-            }
+            textField.textContentType = contentType;
         }
 
         editView = textField;
