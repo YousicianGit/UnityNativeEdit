@@ -392,20 +392,20 @@ bool approxEqualFloat(float x, float y)
         uiFont = [UIFont systemFontOfSize:fontSize];
     }
 
-    UITextContentType contentType = nil;
+    UITextContentType overrideContentType = nil;
     if (@available(iOS 12.0, *))
     {
         if ([contentTypeOverride isEqualToString:@"Username"])
         {
-            contentType = UITextContentTypeUsername;
+            overrideContentType = UITextContentTypeUsername;
         }
         else if ([contentTypeOverride isEqualToString:@"Password"])
         {
-            contentType = UITextContentTypePassword;
+            overrideContentType = UITextContentTypePassword;
         }
         else if ([contentTypeOverride isEqualToString:@"NewPassword"])
         {
-            contentType = UITextContentTypeNewPassword;
+            overrideContentType = UITextContentTypeNewPassword;
         }
     }
 
@@ -439,9 +439,9 @@ bool approxEqualFloat(float x, float y)
         /// Todo
         /// UITextView Alignment is not implemented
 
-        if (contentType != nil)
+        if (overrideContentType != nil)
         {
-            textView.textContentType = contentType;
+            textView.textContentType = overrideContentType;
         }
         
         editView = textView;
@@ -470,9 +470,9 @@ bool approxEqualFloat(float x, float y)
         [textField setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textField.inputAccessoryView = keyboardDoneButtonView;
 
-        if (contentType != nil)
+        if (overrideContentType != nil)
         {
-            textField.textContentType = contentType;
+            textField.textContentType = overrideContentType;
         }
 
         editView = textField;
