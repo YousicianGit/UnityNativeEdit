@@ -251,6 +251,7 @@ bool approxEqualFloat(float x, float y)
     NSString* alignment = [json getString:@"align"];
     BOOL withDoneButton = [json getBool:@"withDoneButton"];
     BOOL multiline = [json getBool:@"multiline"];
+    NSString* contentTypeOverride = [json getString:@"iosContentTypeOverride"];
     
     BOOL autoCorr = NO;
     BOOL password = NO;
@@ -389,8 +390,25 @@ bool approxEqualFloat(float x, float y)
     else
     {
         uiFont = [UIFont systemFontOfSize:fontSize];
-    }    
-    
+    }
+
+    UITextContentType overrideContentType = nil;
+    if (@available(iOS 12.0, *))
+    {
+        if ([contentTypeOverride isEqualToString:@"Username"])
+        {
+            overrideContentType = UITextContentTypeUsername;
+        }
+        else if ([contentTypeOverride isEqualToString:@"Password"])
+        {
+            overrideContentType = UITextContentTypePassword;
+        }
+        else if ([contentTypeOverride isEqualToString:@"NewPassword"])
+        {
+            overrideContentType = UITextContentTypeNewPassword;
+        }
+    }
+
     if (multiline)
     {
         PlaceholderTextView* textView = [[PlaceholderTextView alloc] initWithFrame:CGRectMake(x, y, width, height)];
@@ -417,10 +435,14 @@ bool approxEqualFloat(float x, float y)
         
         [textView setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textView.inputAccessoryView = keyboardDoneButtonView;
-        
-        
+
         /// Todo
         /// UITextView Alignment is not implemented
+
+        if (overrideContentType != nil)
+        {
+            textView.textContentType = overrideContentType;
+        }
         
         editView = textView;
     }
@@ -447,7 +469,12 @@ bool approxEqualFloat(float x, float y)
         [textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
         [textField setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textField.inputAccessoryView = keyboardDoneButtonView;
-        
+
+        if (overrideContentType != nil)
+        {
+            textField.textContentType = overrideContentType;
+        }
+
         editView = textField;
     }
     [viewPlugin addSubview:editView];
