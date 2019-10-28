@@ -153,6 +153,7 @@ public class PluginMsgHandler : MonoBehaviour {
 	
 	private void OnMsgFromPlugin(string jsonPluginMsg)
 	{
+		UnityEngine.Debug.LogError("Got message from plugin: " + jsonPluginMsg);
 		if (jsonPluginMsg == null) return;
 
 		JsonObject jsonMsg = new JsonObject(jsonPluginMsg);
