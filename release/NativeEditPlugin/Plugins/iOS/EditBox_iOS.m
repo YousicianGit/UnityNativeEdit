@@ -392,7 +392,7 @@ bool approxEqualFloat(float x, float y)
         uiFont = [UIFont systemFontOfSize:fontSize];
     }
 
-    UITextContentType* contentType = nil;
+    UITextContentType contentType = nil;
     if (@available(iOS 12.0, *))
     {
         if ([contentTypeOverride isEqualToString:@"Username"])
