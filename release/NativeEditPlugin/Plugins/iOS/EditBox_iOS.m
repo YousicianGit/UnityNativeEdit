@@ -656,10 +656,10 @@ bool approxEqualFloat(float x, float y)
     [jsonToUnity setString:@"text" value:@"shouldChangeCharactersInRange"];
     [self sendJsonToUnity:jsonToUnity];
 
-    if(range.length + range.location > textField.text.length)
-    {
-        return NO;
-    }
+    //if(range.length + range.location > textField.text.length)
+    //{
+    //    return NO;
+    //}
 
     NSUInteger newLength = [textField.text length] + [string length] - range.length;
     if([self maxLength] > 0)
