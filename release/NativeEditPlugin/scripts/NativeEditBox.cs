@@ -207,14 +207,14 @@ public class NativeEditBox : PluginMsgReceiver
 		yield return null;
 
 		this.PrepareNativeEdit();
-		//#if (UNITY_IPHONE || UNITY_ANDROID) && !UNITY_EDITOR
+		#if (UNITY_IPHONE || UNITY_ANDROID) && !UNITY_EDITOR
 		this.CreateNativeEdit();
 		this.SetTextNative(this.objUnityInput.text);
 
-		//objUnityInput.placeholder.gameObject.SetActive(false);
-		//objUnityText.enabled = false;
-		//objUnityInput.enabled = false;
-		//#endif
+		objUnityInput.placeholder.gameObject.SetActive(false);
+		objUnityText.enabled = false;
+		objUnityInput.enabled = false;
+		#endif
 	}
 
 	private void Update()
@@ -384,7 +384,6 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public void SetRectNative(RectTransform rectTrans)
 	{
-		UnityEngine.Debug.LogError("SetRectNative " + gameObject.name);
 		var rectScreen = GetScreenRectFromRectTransform(rectTrans);
 
 		var jsonMsg = new JsonObject();
