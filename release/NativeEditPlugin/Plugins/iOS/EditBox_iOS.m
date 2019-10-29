@@ -674,7 +674,7 @@ bool approxEqualFloat(float x, float y)
     JsonObject* jsonToUnity = [[JsonObject alloc] init];
     [jsonToUnity setString:@"msg" value:MSG_DEBUG];
     [jsonToUnity setString:@"text" value:@"textFieldDidChange"];
-    [jsonToUnity setString:@"other" value:[theTextField getText]];
+    [jsonToUnity setString:@"other" value:[theTextField text]];
     [self sendJsonToUnity:jsonToUnity];
     [self onTextChange:theTextField.text];
 }
