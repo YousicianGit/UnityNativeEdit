@@ -154,6 +154,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void Awake()
 	{
+		UnityEngine.Debug.LogError("Awake " + gameObject.name);
 		objUnityInput = this.GetComponent<InputField>();
 		if (objUnityInput == null)
 		{
@@ -167,6 +168,7 @@ public class NativeEditBox : PluginMsgReceiver
 	// Use this for initialization
 	protected override void Start()
 	{
+		UnityEngine.Debug.LogError("Start " + gameObject.name);
 		base.Start();
 
 		// Wait until the end of frame before initializing to ensure that Unity UI layout has been built. We used to
@@ -177,18 +179,22 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void OnEnable()
 	{
+		UnityEngine.Debug.LogError("OnEnable " + gameObject.name);
 		if (bNativeEditCreated)
 			this.SetVisible(true);
 	}
 
 	private void OnDisable()
 	{
+		UnityEngine.Debug.LogError("OnDisable " + gameObject.name);
 		if (bNativeEditCreated)
 			this.SetVisible(false);
 	}
 
 	protected override void OnDestroy()
 	{
+		UnityEngine.Debug.LogError("OnDestroy " + gameObject.name);
+
 		RemoveNative();
 
 		base.OnDestroy();
@@ -196,17 +202,19 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private IEnumerator InitializeOnNextFrame()
 	{
+		UnityEngine.Debug.LogError("InitializeOnNextFrame " + gameObject.name);
+
 		yield return null;
 
 		this.PrepareNativeEdit();
-		#if (UNITY_IPHONE || UNITY_ANDROID) && !UNITY_EDITOR
+		//#if (UNITY_IPHONE || UNITY_ANDROID) && !UNITY_EDITOR
 		this.CreateNativeEdit();
 		this.SetTextNative(this.objUnityInput.text);
 
-		objUnityInput.placeholder.gameObject.SetActive(false);
-		objUnityText.enabled = false;
-		objUnityInput.enabled = false;
-		#endif
+		//objUnityInput.placeholder.gameObject.SetActive(false);
+		//objUnityText.enabled = false;
+		//objUnityInput.enabled = false;
+		//#endif
 	}
 
 	private void Update()
@@ -223,6 +231,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void PrepareNativeEdit()
 	{
+		UnityEngine.Debug.LogError("PrepareNativeEdit " + gameObject.name);
 		var placeHolder = objUnityInput.placeholder.GetComponent<Text>();
 
 		if (useInputFieldFont)
@@ -291,6 +300,8 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void CreateNativeEdit()
 	{
+		UnityEngine.Debug.LogError("CreateNativeEdit " + gameObject.name);
+
 		Rect rectScreen = GetScreenRectFromRectTransform(this.objUnityText.rectTransform);
 
 		JsonObject jsonMsg = new JsonObject();
@@ -353,6 +364,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void SetTextNative(string newText)
 	{
+		UnityEngine.Debug.LogError("SetTextNative " + gameObject.name);
 		JsonObject jsonMsg = new JsonObject();
 		
 		jsonMsg["msg"] = MSG_SET_TEXT;
@@ -363,6 +375,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void RemoveNative()
 	{
+		UnityEngine.Debug.LogError("RemoveNative " + gameObject.name);
 		JsonObject jsonMsg = new JsonObject();
 		
 		jsonMsg["msg"] = MSG_REMOVE;
@@ -371,6 +384,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public void SetRectNative(RectTransform rectTrans)
 	{
+		UnityEngine.Debug.LogError("SetRectNative " + gameObject.name);
 		var rectScreen = GetScreenRectFromRectTransform(rectTrans);
 
 		var jsonMsg = new JsonObject();
@@ -395,6 +409,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public void SetFocus(bool bFocus)
 	{
+		UnityEngine.Debug.LogError("SetFocus " + gameObject.name + " " + bFocus);
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 		if (!bNativeEditCreated)
 		{
@@ -423,6 +438,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public void SetVisible(bool bVisible)
 	{
+		UnityEngine.Debug.LogError("SetVisible " + gameObject.name + " " + bVisible);
 		if (!bNativeEditCreated)
 		{
 			visibleOnCreate = bVisible;
