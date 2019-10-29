@@ -639,7 +639,7 @@ bool approxEqualFloat(float x, float y)
 {
     JsonObject* debugJsonToUnity = [[JsonObject alloc] init];
     [debugJsonToUnity setString:@"msg" value:MSG_DEBUG];
-    [debugJsonToUnity setString:@"text" value:@"shouldChangeCharactersInRange"];
+    [debugJsonToUnity setString:@"text" value:@"textFieldShouldReturn"];
     [self sendJsonToUnity:debugJsonToUnity];
     if (![editView isFirstResponder]) return YES;
     JsonObject* jsonToUnity = [[JsonObject alloc] init];
@@ -651,10 +651,6 @@ bool approxEqualFloat(float x, float y)
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     // Prevent crashing undo bug – see note below.
-    JsonObject* jsonToUnity = [[JsonObject alloc] init];
-    [jsonToUnity setString:@"msg" value:MSG_DEBUG];
-    [jsonToUnity setString:@"text" value:@"shouldChangeCharactersInRange"];
-    [self sendJsonToUnity:jsonToUnity];
 
     //if(range.length + range.location > textField.text.length)
     //{
@@ -663,9 +659,31 @@ bool approxEqualFloat(float x, float y)
 
     NSUInteger newLength = [textField.text length] + [string length] - range.length;
     if([self maxLength] > 0)
+    {
+        if (newLength <= [self maxLength])
+        {
+            JsonObject* jsonToUnity = [[JsonObject alloc] init];
+            [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+            [jsonToUnity setString:@"text" value:@"shouldChangeCharactersInRange YES"];
+            [self sendJsonToUnity:jsonToUnity];
+        }
+        else
+        {
+            JsonObject* jsonToUnity = [[JsonObject alloc] init];
+            [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+            [jsonToUnity setString:@"text" value:@"shouldChangeCharactersInRange NO"];
+            [self sendJsonToUnity:jsonToUnity];
+        }
         return newLength <= [self maxLength];
+    }
     else
+    {
+        JsonObject* jsonToUnity = [[JsonObject alloc] init];
+        [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+        [jsonToUnity setString:@"text" value:@"shouldChangeCharactersInRange YES maxlength == 0"];
+        [self sendJsonToUnity:jsonToUnity];
         return YES;
+    }
 }
 
 #pragma mark - Other targets
