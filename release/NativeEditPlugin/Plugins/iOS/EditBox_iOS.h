@@ -17,6 +17,7 @@
 #define MSG_TEXT_BEGIN_EDIT @"TextBeginEdit"
 #define MSG_TEXT_END_EDIT @"TextEndEdit"
 #define MSG_RETURN_PRESSED @"ReturnPressed"
+#define MSG_RETURN_PRESSED @"Debug"
 
 @interface EditBoxHoldView : UIView
 {

@@ -216,47 +216,53 @@ bool approxEqualFloat(float x, float y)
 
 -(void) create:(JsonObject*)json
 {
+    JsonObject* jsonToUnity = [[JsonObject alloc] init];
+
+    [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+    [jsonToUnity setString:@"text" value:@"create"];
+    [self sendJsonToUnity:jsonToUnity];
+
     NSString* placeholder = [json getString:@"placeHolder"];
-    
+
     NSString* font = [json getString:@"font"];
     float fontSize = [json getFloat:@"fontSize"];
-    
+
     float x = [json getFloat:@"x"] * viewController.view.bounds.size.width;
     float y = [json getFloat:@"y"] * viewController.view.bounds.size.height;
     float width = [json getFloat:@"width"] * viewController.view.bounds.size.width;
     float height = [json getFloat:@"height"] * viewController.view.bounds.size.height;
-    
+
     [self setMaxLength:[json getInt:@"characterLimit"]];
-    
+
     float textColor_r = [json getFloat:@"textColor_r"];
     float textColor_g = [json getFloat:@"textColor_g"];
     float textColor_b = [json getFloat:@"textColor_b"];
     float textColor_a = [json getFloat:@"textColor_a"];
     UIColor* textColor = [UIColor colorWithRed:textColor_r green:textColor_g blue:textColor_b alpha:textColor_a];
-    
+
     float backColor_r = [json getFloat:@"backColor_r"];
     float backColor_g = [json getFloat:@"backColor_g"];
     float backColor_b = [json getFloat:@"backColor_b"];
     float backColor_a = [json getFloat:@"backColor_a"];
     UIColor* backgroundColor = [UIColor colorWithRed:backColor_r green:backColor_g blue:backColor_b alpha:backColor_a];
-    
+
     float placeHolderColor_r = [json getFloat:@"placeHolderColor_r"];
     float placeHolderColor_g = [json getFloat:@"placeHolderColor_g"];
     float placeHolderColor_b = [json getFloat:@"placeHolderColor_b"];
     float placeHolderColor_a = [json getFloat:@"placeHolderColor_a"];
     UIColor* placeHolderColor = [UIColor colorWithRed:placeHolderColor_r green:placeHolderColor_g blue:placeHolderColor_b alpha:placeHolderColor_a];
-    
+
     NSString* contentType = [json getString:@"contentType"];
     NSString* keyboardType = [json getString:@"keyboardType"];
     NSString* alignment = [json getString:@"align"];
     BOOL withDoneButton = [json getBool:@"withDoneButton"];
     BOOL multiline = [json getBool:@"multiline"];
     NSString* contentTypeOverride = [json getString:@"iosContentTypeOverride"];
-    
+
     BOOL autoCorr = NO;
     BOOL password = NO;
     UIKeyboardType keyType = UIKeyboardTypeDefault;
-    
+
     if ([contentType isEqualToString:@"Autocorrected"])
     {
         autoCorr = YES;
@@ -306,7 +312,7 @@ bool approxEqualFloat(float x, float y)
 
     UIControlContentHorizontalAlignment halign = UIControlContentHorizontalAlignmentLeft;
     UIControlContentVerticalAlignment valign = UIControlContentVerticalAlignmentCenter;
-    
+
     if ([alignment isEqualToString:@"UpperLeft"])
     {
         valign = UIControlContentVerticalAlignmentTop;
@@ -352,14 +358,14 @@ bool approxEqualFloat(float x, float y)
         valign = UIControlContentVerticalAlignmentBottom;
         halign = UIControlContentHorizontalAlignmentRight;
     }
-   
+
     if (withDoneButton)
     {
         keyboardDoneButtonView  = [[UIToolbar alloc] init];
         [keyboardDoneButtonView sizeToFit];
         doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self
                                         action:@selector(doneClicked:)];
-        
+
         UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
         [keyboardDoneButtonView setItems:[NSArray arrayWithObjects:flexibleSpace, flexibleSpace,doneButton, nil]];
     }
@@ -367,7 +373,7 @@ bool approxEqualFloat(float x, float y)
     {
         keyboardDoneButtonView = nil;
     }
-    
+
     UIReturnKeyType returnKeyType = UIReturnKeyDefault;
     NSString* returnKeyTypeString = [json getString:@"return_key_type"];
     if ([returnKeyTypeString isEqualToString:@"Next"])
@@ -378,10 +384,10 @@ bool approxEqualFloat(float x, float y)
     {
         returnKeyType = UIReturnKeyDone;
     }
-    
+
     // Conversion for retina displays
     fontSize = fontSize / [UIScreen mainScreen].scale;
-    
+
     UIFont* uiFont;
     if ([font length] > 0)
     {
@@ -413,15 +419,15 @@ bool approxEqualFloat(float x, float y)
     {
         PlaceholderTextView* textView = [[PlaceholderTextView alloc] initWithFrame:CGRectMake(x, y, width, height)];
         textView.keyboardType = keyType;
-        
+
         [textView setFont:uiFont];
-        
+
         textView.scrollEnabled = TRUE;
-        
+
         textView.delegate = self;
         textView.tag = 0;
         textView.text = @"";
-        
+
         textView.textColor = textColor;
         textView.backgroundColor = backgroundColor;
         textView.returnKeyType = returnKeyType;
@@ -432,7 +438,7 @@ bool approxEqualFloat(float x, float y)
         textView.delegate = self;
         if (keyType == UIKeyboardTypeEmailAddress)
             textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
-        
+
         [textView setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textView.inputAccessoryView = keyboardDoneButtonView;
 
@@ -443,7 +449,7 @@ bool approxEqualFloat(float x, float y)
         {
             textView.textContentType = overrideContentType;
         }
-        
+
         editView = textView;
     }
     else
@@ -465,7 +471,7 @@ bool approxEqualFloat(float x, float y)
         textField.delegate = self;
         if (keyType == UIKeyboardTypeEmailAddress)
             textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-        
+
         [textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
         [textField setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textField.inputAccessoryView = keyboardDoneButtonView;
@@ -509,6 +515,11 @@ bool approxEqualFloat(float x, float y)
 
 -(void) remove
 {
+    JsonObject* jsonToUnity = [[JsonObject alloc] init];
+
+    [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+    [jsonToUnity setString:@"text" value:@"remove"];
+    [self sendJsonToUnity:jsonToUnity];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [editView resignFirstResponder];
     [editView removeFromSuperview];
@@ -553,6 +564,17 @@ bool approxEqualFloat(float x, float y)
 
 -(void) setVisible:(bool)isVisible
 {
+    JsonObject* jsonToUnity = [[JsonObject alloc] init];
+    [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+    if (isVisible)
+    {
+        [jsonToUnity setString:@"text" value:@"setvisible true"];
+    }
+    else
+    {
+        [jsonToUnity setString:@"text" value:@"setvisible false"];
+    }
+    [self sendJsonToUnity:jsonToUnity];
     editView.hidden = !isVisible;
 }
 
@@ -561,7 +583,7 @@ bool approxEqualFloat(float x, float y)
 -(void) onTextChange:(NSString*) text
 {
     JsonObject* jsonToUnity = [[JsonObject alloc] init];
-    
+
     [jsonToUnity setString:@"msg" value:MSG_TEXT_CHANGE];
     [jsonToUnity setString:@"text" value:text];
     [self sendJsonToUnity:jsonToUnity];
@@ -570,7 +592,7 @@ bool approxEqualFloat(float x, float y)
 -(void) onTextEditBegin
 {
     JsonObject* jsonToUnity = [[JsonObject alloc] init];
-    
+
     [jsonToUnity setString:@"msg" value:MSG_TEXT_BEGIN_EDIT];
     [self sendJsonToUnity:jsonToUnity];
 }
@@ -578,7 +600,7 @@ bool approxEqualFloat(float x, float y)
 -(void) onTextEditEnd:(NSString*) text
 {
     JsonObject* jsonToUnity = [[JsonObject alloc] init];
-    
+
     [jsonToUnity setString:@"msg" value:MSG_TEXT_END_EDIT];
     [jsonToUnity setString:@"text" value:text];
     [self sendJsonToUnity:jsonToUnity];
@@ -615,9 +637,13 @@ bool approxEqualFloat(float x, float y)
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
+    JsonObject* debugJsonToUnity = [[JsonObject alloc] init];
+    [debugJsonToUnity setString:@"msg" value:MSG_DEBUG];
+    [debugJsonToUnity setString:@"text" value:@"shouldChangeCharactersInRange"];
+    [self sendJsonToUnity:debugJsonToUnity];
     if (![editView isFirstResponder]) return YES;
     JsonObject* jsonToUnity = [[JsonObject alloc] init];
-    
+
     [jsonToUnity setString:@"msg" value:MSG_RETURN_PRESSED];
     [self sendJsonToUnity:jsonToUnity];
     return YES;
@@ -625,11 +651,16 @@ bool approxEqualFloat(float x, float y)
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     // Prevent crashing undo bug – see note below.
+    JsonObject* jsonToUnity = [[JsonObject alloc] init];
+    [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+    [jsonToUnity setString:@"text" value:@"shouldChangeCharactersInRange"];
+    [self sendJsonToUnity:jsonToUnity];
+
     if(range.length + range.location > textField.text.length)
     {
         return NO;
     }
-    
+
     NSUInteger newLength = [textField.text length] + [string length] - range.length;
     if([self maxLength] > 0)
         return newLength <= [self maxLength];
@@ -640,13 +671,27 @@ bool approxEqualFloat(float x, float y)
 #pragma mark - Other targets
 
 -(void) textFieldDidChange :(UITextField *)theTextField{
+    JsonObject* jsonToUnity = [[JsonObject alloc] init];
+    [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+    [jsonToUnity setString:@"text" value:@"textFieldDidChange"];
+    [jsonToUnity setString:@"other" value:[theTextField getText]];
+    [self sendJsonToUnity:jsonToUnity];
     [self onTextChange:theTextField.text];
 }
 
 -(void) keyboardWillShow:(NSNotification *)notification
 {
+    JsonObject* jsonToUnity = [[JsonObject alloc] init];
+    [jsonToUnity setString:@"msg" value:MSG_DEBUG];
+    [jsonToUnity setString:@"text" value:@"keyboardWillShow"];
+    [self sendJsonToUnity:jsonToUnity];
     if (![editView isFirstResponder]) return;
-    
+
+    JsonObject* debugJsonToUnity = [[JsonObject alloc] init];
+    [debugJsonToUnity setString:@"msg" value:MSG_DEBUG];
+    [debugJsonToUnity setString:@"text" value:@"keyboardShown"];
+    [self sendJsonToUnity:debugJsonToUnity];
+
     NSDictionary* keyboardInfo = [notification userInfo];
     NSValue* keyboardFrameBegin = [keyboardInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
     rectKeyboardFrame = [keyboardFrameBegin CGRectValue];

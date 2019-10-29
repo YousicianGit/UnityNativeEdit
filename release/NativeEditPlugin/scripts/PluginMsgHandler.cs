@@ -160,6 +160,10 @@ public class PluginMsgHandler : MonoBehaviour {
 
 		string msg = jsonMsg.GetString("msg");
 
+		if (msg.Equals("Debug"))
+		{
+			return;
+		}
 		if (msg.Equals(MSG_SHOW_KEYBOARD))
 		{
 			bool bShow = jsonMsg.GetBool("show");
