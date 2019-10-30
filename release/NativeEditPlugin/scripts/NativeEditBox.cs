@@ -194,14 +194,6 @@ public class NativeEditBox : PluginMsgReceiver
 		base.OnDestroy();
 	}
 
-	private void OnApplicationFocus(bool hasFocus)
-	{
-		if (!bNativeEditCreated || !this.Visible)
-			return;
-
-		this.SetVisible(hasFocus);
-	}
-
 	private IEnumerator InitializeOnNextFrame()
 	{
 		yield return null;
@@ -214,6 +206,19 @@ public class NativeEditBox : PluginMsgReceiver
 		objUnityInput.placeholder.gameObject.SetActive(false);
 		objUnityText.enabled = false;
 		objUnityInput.enabled = false;
+
+		// For iOS autofill to work correctly, all input fields expected to be autofilled, need to exist before we set
+		// the native focus. Assuming all related input fields are created simultaneously, they will all be
+		// initialized after one frame (see above). In this case, waiting for one more frame should ensure they all
+		// exist before we set the focus. In more complex cases, the caller may need to further delay setting focus,
+		// until all related input fields are guaranteed to exist.
+
+		yield return null;
+
+		if (this.focusOnCreate)
+		{
+			this.SetFocus(true);
+		}
 		#endif
 	}
 
@@ -354,9 +359,6 @@ public class NativeEditBox : PluginMsgReceiver
 
 		if (!visibleOnCreate)
 			SetVisible(false);
-
-		if (focusOnCreate)
-			SetFocus(true);
 	}
 
 	private void SetTextNative(string newText)
