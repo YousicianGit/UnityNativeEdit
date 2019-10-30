@@ -478,8 +478,6 @@ bool approxEqualFloat(float x, float y)
         editView = textField;
     }
     [viewPlugin addSubview:editView];
-    [editView becomeFirstResponder];
-    [editView resignFirstResponder];
 }
 
 -(void) setText:(JsonObject*)json
