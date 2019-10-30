@@ -347,8 +347,10 @@ public class NativeEditBox : PluginMsgReceiver
 		if (!visibleOnCreate)
 			SetVisible(false);
 
-		if (focusOnCreate)
-			SetFocus(true);
+		if (this.focusOnCreate)
+		{
+			this.StartCoroutine(this.DelayedFocus(true));
+		}
 	}
 
 	private void SetTextNative(string newText)
@@ -391,6 +393,13 @@ public class NativeEditBox : PluginMsgReceiver
 			this.SendPluginMsg(sizeMsg);
 			this.mConfig.fontSize = fontSize;
 		}
+	}
+
+	private IEnumerator DelayedFocus(bool focus)
+	{
+		yield return null;
+
+		this.SetFocus(focus);
 	}
 
 	public void SetFocus(bool bFocus)
