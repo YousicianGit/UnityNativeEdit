@@ -478,12 +478,8 @@ bool approxEqualFloat(float x, float y)
         editView = textField;
     }
     [viewPlugin addSubview:editView];
-
-    if (overrideContentType != nil && overrideContentType != UITextContentTypeNewPassword)
-    {
-        [editView becomeFirstResponder];
-        [editView resignFirstResponder];
-    }
+    [editView becomeFirstResponder];
+    [editView resignFirstResponder];
 }
 
 -(void) setText:(JsonObject*)json
