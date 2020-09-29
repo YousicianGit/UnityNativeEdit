@@ -35,6 +35,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(InputField))]
@@ -236,13 +237,22 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void PrepareNativeEdit()
 	{
+		var tmpPlaceholder = objUnityInput.placeholder.GetComponent<TextMeshProUGUI>();
 		var placeHolder = objUnityInput.placeholder.GetComponent<Text>();
 
 		if (useInputFieldFont)
 			mConfig.font = objUnityText.font.fontNames.Length > 0 ? objUnityText.font.fontNames[0] : "Arial";
 
-		mConfig.placeHolder = placeHolder.text;
-		mConfig.placeHolderColor = placeHolder.color;
+		if (tmpPlaceholder != null)
+		{
+			mConfig.placeHolder = tmpPlaceholder.text;
+			mConfig.placeHolderColor = tmpPlaceholder.color;
+		}
+		else
+		{
+			mConfig.placeHolder = placeHolder.text;
+			mConfig.placeHolderColor = placeHolder.color;
+		}
 		mConfig.characterLimit = objUnityInput.characterLimit;
 
 		Rect rectScreen = GetScreenRectFromRectTransform(this.objUnityText.rectTransform);
