@@ -87,7 +87,7 @@ public class NativeEditBox : PluginMsgReceiver
 	private bool bNativeEditCreated = false;
 
 	private InputField	objUnityInput;
-	private Text objUnityText;
+	private Text objUnityText => objUnityInput.textComponent;
 	private bool focusOnCreate;
 	private bool visibleOnCreate = true;
 
@@ -106,17 +106,36 @@ public class NativeEditBox : PluginMsgReceiver
 	private const string MSG_RETURN_PRESSED = "ReturnPressed";
 	private const string MSG_GET_TEXT = "GetText";
 
-	public InputField InputField { get { return objUnityInput; } }
+	public InputField InputField
+	{
+		get
+		{
+			if (this.objUnityInput != null)
+			{
+				return this.objUnityInput;
+			}
+
+			this.objUnityInput = this.GetComponent<InputField>();
+			if (this.objUnityInput == null)
+			{
+				Debug.LogErrorFormat("No InputField found {0} NativeEditBox Error", this.name);
+				throw new MissingComponentException();
+			}
+
+			return this.objUnityInput;
+		}
+	}
+
 	public bool Visible { get; private set; }
 
 	protected virtual void AppendExtraFieldsForCreation(JsonObject jsonObject) { }
 
 	public string text
 	{
-		get { return objUnityInput.text; }
+		get { return InputField.text; }
 		set
 		{
-			objUnityInput.text = value;
+			InputField.text = value;
 			SetTextNative(value);
 		}
 	}
@@ -152,18 +171,6 @@ public class NativeEditBox : PluginMsgReceiver
 	}
 
 	private EditBoxConfig mConfig;
-
-	private void Awake()
-	{
-		objUnityInput = this.GetComponent<InputField>();
-		if (objUnityInput == null)
-		{
-			Debug.LogErrorFormat("No InputField found {0} NativeEditBox Error", this.name);
-			throw new MissingComponentException();
-		}
-
-		objUnityText = objUnityInput.textComponent;
-	}
 
 	// Use this for initialization
 	protected override void Start()
@@ -202,11 +209,11 @@ public class NativeEditBox : PluginMsgReceiver
 		this.PrepareNativeEdit();
 		#if (UNITY_IPHONE || UNITY_ANDROID) && !UNITY_EDITOR
 		this.CreateNativeEdit();
-		this.SetTextNative(this.objUnityInput.text);
+		this.SetTextNative(this.InputField.text);
 
-		objUnityInput.placeholder.gameObject.SetActive(false);
-		objUnityText.enabled = false;
-		objUnityInput.enabled = false;
+		this.InputField.placeholder.gameObject.SetActive(false);
+		this.objUnityText.enabled = false;
+		this.InputField.enabled = false;
 
 		// For iOS autofill to work correctly, all input fields expected to be autofilled, need to exist before we set
 		// the native focus. Assuming all related input fields are created simultaneously, they will all be
@@ -229,7 +236,7 @@ public class NativeEditBox : PluginMsgReceiver
 		this.UpdateForceKeyeventForAndroid();
 #endif
 
-		if (updateRectEveryFrame && this.objUnityInput != null && bNativeEditCreated)
+		if (updateRectEveryFrame && this.InputField != null && bNativeEditCreated)
 		{
 			SetRectNative(this.objUnityText.rectTransform);
 		}
@@ -237,8 +244,8 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void PrepareNativeEdit()
 	{
-		var tmpPlaceholder = objUnityInput.placeholder.GetComponent<TextMeshProUGUI>();
-		var placeHolder = objUnityInput.placeholder.GetComponent<Text>();
+		var tmpPlaceholder = this.InputField.placeholder.GetComponent<TextMeshProUGUI>();
+		var placeHolder = this.InputField.placeholder.GetComponent<Text>();
 
 		if (useInputFieldFont)
 			mConfig.font = objUnityText.font.fontNames.Length > 0 ? objUnityText.font.fontNames[0] : "Arial";
@@ -253,7 +260,7 @@ public class NativeEditBox : PluginMsgReceiver
 			mConfig.placeHolder = placeHolder.text;
 			mConfig.placeHolderColor = placeHolder.color;
 		}
-		mConfig.characterLimit = objUnityInput.characterLimit;
+		mConfig.characterLimit = this.InputField.characterLimit;
 
 		Rect rectScreen = GetScreenRectFromRectTransform(this.objUnityText.rectTransform);
 		float fHeightRatio = rectScreen.height / objUnityText.rectTransform.rect.height;
@@ -261,10 +268,10 @@ public class NativeEditBox : PluginMsgReceiver
 
 		mConfig.textColor = objUnityText.color;
 		mConfig.align = objUnityText.alignment.ToString();
-		mConfig.contentType = objUnityInput.contentType.ToString();
-		mConfig.keyboardType = objUnityInput.keyboardType.ToString();
+		mConfig.contentType = this.InputField.contentType.ToString();
+		mConfig.keyboardType = this.InputField.keyboardType.ToString();
 		mConfig.backColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-		mConfig.multiline = (objUnityInput.lineType == InputField.LineType.SingleLine) ? false : true;
+		mConfig.multiline = this.InputField.lineType != InputField.LineType.SingleLine;
 		this.mConfig.iosContentTypeOverride = this.iosContentTypeOverride;
 	}
 
@@ -290,7 +297,7 @@ public class NativeEditBox : PluginMsgReceiver
 		}
 		else if (msg.Equals(MSG_TEXT_CHANGE) || msg.Equals(MSG_TEXT_END_EDIT))
 		{
-			this.objUnityInput.text = jsonMsg.GetString("text");
+			this.InputField.text = jsonMsg.GetString("text");
 		}
 		else if (msg.Equals(MSG_RETURN_PRESSED))
 		{
@@ -432,9 +439,9 @@ public class NativeEditBox : PluginMsgReceiver
 		if (gameObject.activeInHierarchy)
 		{
 			if (bFocus)
-				objUnityInput.ActivateInputField();
+				this.InputField.ActivateInputField();
 			else
-				objUnityInput.DeactivateInputField();
+				this.InputField.DeactivateInputField();
 		}
 		else
 			focusOnCreate = bFocus;
