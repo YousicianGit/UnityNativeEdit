@@ -289,6 +289,10 @@ public class NativeEditBox : PluginMsgReceiver
 
 	protected virtual void HandlePluginMessage(JsonObject jsonMsg)
 	{
+		// By the time this is called the component might be destroyed
+		if (this == null)
+			return;
+
 		string msg = jsonMsg.GetString("msg");
 		if (msg.Equals(MSG_TEXT_BEGIN_EDIT))
 		{
