@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System;
 using System.IO;
+using System.Reflection;
 using AOT;
 
 public class PluginMsgHandler : MonoBehaviour {
@@ -151,6 +152,7 @@ public class PluginMsgHandler : MonoBehaviour {
 		return m_dictReceiver[nSenderId];
 	}
 	
+	[Obfuscation(Exclude = true)]
 	private void OnMsgFromPlugin(string jsonPluginMsg)
 	{
 		if (jsonPluginMsg == null) return;
